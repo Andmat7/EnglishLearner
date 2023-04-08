@@ -17,6 +17,9 @@ export class HtmlElementsFactory {
             case 'video': // Agrega el caso de video
                 el = this.createVideo(elem);
                 break;
+            case 'textarea': // Agrega el caso de textarea
+                el = this.createTextarea(elem);
+                break;
             default:
                 throw new Error(`Unsupported element type: ${elem.tag}`);
         }
@@ -25,7 +28,18 @@ export class HtmlElementsFactory {
         }
         return el;
     }
+    static createTextarea({ id, label }) {
+        const textarea = document.createElement('textarea');
+        textarea.setAttribute('id', id);
 
+        const textareaLabel = document.createElement('label');
+        textareaLabel.textContent = label;
+        textareaLabel.setAttribute('for', id);
+
+        textareaLabel.appendChild(textarea);
+
+        return textareaLabel;
+    }
     static createSelect({ id, label, onChange }) {
         const select = document.createElement('select');
         select.setAttribute('id', id);
