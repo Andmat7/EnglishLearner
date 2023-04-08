@@ -81,6 +81,7 @@ export class VideoRecorder {
 
     startRecording() {
         if (this.recorder) {
+            this.videoElement.srcObject = this.recorder.stream;
             this.recorder.start();
             this.hideButton(this.recordBtn);
             this.showButton(this.stopBtn);
