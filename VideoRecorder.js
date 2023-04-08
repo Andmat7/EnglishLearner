@@ -8,7 +8,7 @@ export class VideoRecorder {
     createButtons() {
         const recordBtn = { tag: 'button', label: 'Record', onClick: this.startRecording.bind(this) };
         const stopBtn = { tag: 'button', label: 'Stop', onClick: this.stopRecording.bind(this), style: 'display: none;' };
-        const video = { tag: 'video', attributes: { controls: true } };
+        const video = { tag: 'video', attributes: { controls: true }, style: 'display: none;' };
 
         const videoRecorder = document.querySelector('video-recorder');
         const createdElements = HtmlElementsFactory.appendTo(videoRecorder, [recordBtn, stopBtn, video]);
