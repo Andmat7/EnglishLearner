@@ -1,41 +1,23 @@
 import { HtmlElementsFactory } from './HtmlElementsFactory.js';
 
 export class TextToSpeech {
-  constructor() {
-    this.init();
-  }
-
-  init() {
-    this.createHtmlElements();
+  constructor(ttsElement) {
+    this.createHtmlElements(ttsElement);
     this.initializeSpeechSynthesis();
   }
 
-  createHtmlElements() {
-    const elements = [
-      {
-        tag: 'select',
-        id: 'voice-select',
-        label: 'Selecciona una voz en inglés:',
-        onChange: this.setVoice.bind(this),
-      },
-      {
-        tag: 'input',
-        type: 'text',
-        id: 'input-text',
-        label: 'Ingresa el texto a sintetizar:',
-      },
-      {
-        tag: 'button',
-        id: 'speak-btn',
-        label: 'Hablar',
-        onClick: this.speak.bind(this),
-      },
-    ];
 
-    const tts = document.querySelector('text-to-speech');
-    HtmlElementsFactory.appendTo(tts, elements);
+
+  createHtmlElements(ttsElement) {
+    const select = { tag: 'select', id: 'voice-select', label: 'Select an English voice:', onChange: this.setVoice.bind(this) };
+    const input = { tag: 'input', type: 'text', id: 'input-text', label: 'Enter text to synthesize:' };
+    const speakBtn = { tag: 'button', label: 'Speak', id: 'speak-btn', onClick: this.speak.bind(this) };
+    const createdElements = HtmlElementsFactory.appendTo(ttsElement, [select, input, speakBtn]);
+    
+    this.voiceSelect = createdElements[0];
+    this.inputText = createdElements[1];
+    this.speakBtn = createdElements[2];
   }
-
 
   initializeSpeechSynthesis() {
     if ('speechSynthesis' in window) {
@@ -56,7 +38,7 @@ export class TextToSpeech {
       const option = document.createElement('option');
       option.textContent = `${voice.name} (${voice.lang})`;
       option.setAttribute('value', voice.name);
-      document.getElementById('voice-select').appendChild(option);
+      this.voiceSelect.appendChild(option);
     });
 
     const defaultEnVoice = enVoices[0];

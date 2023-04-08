@@ -52,7 +52,7 @@ export class HtmlElementsFactory {
 
         selectLabel.appendChild(select);
 
-        return selectLabel;
+        return select;
     }
 
     static createInput({ id, label, type }) {
