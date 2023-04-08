@@ -27,16 +27,7 @@ export class VideoRecorder {
             this.showButton(this.recordBtn);
         } else {
             navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
-                this.videoElement.srcObject = stream;
-                this.videoElement.play();
-                this.recorder = new MediaRecorder(stream);
-                this.cameraBtn.textContent = 'Stop Camera';
-                this.recorder.addEventListener('dataavailable', event => {
-                    this.chunks.push(event.data);
-                });
-                this.recorder.addEventListener('stop', () => {
-                    this.handleRecordingStop();
-                });
+                this.startStreaming(stream);
                 this.showButton(this.recordBtn);
                 this.hideButton(this.cameraBtn);
             }).catch(error => {
@@ -52,17 +43,7 @@ export class VideoRecorder {
 
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
-                this.videoElement.srcObject = stream;
-                this.videoElement.play();
-                this.recorder = new MediaRecorder(stream);
-
-                this.recorder.addEventListener('dataavailable', event => {
-                    this.chunks.push(event.data);
-                });
-
-                this.recorder.addEventListener('stop', () => {
-                    this.handleRecordingStop();
-                });
+                this.startStreaming(stream);
 
             }).catch(error => {
                 console.error('No se pudo acceder a la cámara y/o micrófono.', error);
@@ -86,6 +67,20 @@ export class VideoRecorder {
             this.hideButton(this.recordBtn);
             this.showButton(this.stopBtn);
         }
+    }
+
+    startStreaming(stream) {
+        this.videoElement.srcObject = stream;
+        this.videoElement.play();
+        this.videoElement.muted = true;
+        this.recorder = new MediaRecorder(stream);
+        this.cameraBtn.textContent = 'Stop Camera';
+        this.recorder.addEventListener('dataavailable', event => {
+            this.chunks.push(event.data);
+        });
+        this.recorder.addEventListener('stop', () => {
+            this.handleRecordingStop();
+        });
     }
 
     stopRecording() {
