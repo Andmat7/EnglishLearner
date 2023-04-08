@@ -17,6 +17,9 @@ export class HtmlElementsFactory {
             default:
                 throw new Error(`Unsupported element type: ${elem.tag}`);
         }
+        if (elem.style) {
+            el.setAttribute('style', elem.style);
+        }
         return el;
     }
 
@@ -69,11 +72,16 @@ export class HtmlElementsFactory {
     }
 
     static appendTo(parentElement, elements) {
+        const createdElements = [];
+
         elements.forEach(elem => {
             const el = this.createElement(elem);
             if (el != undefined) {
                 parentElement.appendChild(el);
+                createdElements.push(el);
             }
         });
+
+        return createdElements;
     }
 }
