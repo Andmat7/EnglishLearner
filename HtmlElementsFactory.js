@@ -14,6 +14,9 @@ export class HtmlElementsFactory {
             case 'audio':
                 el = this.createAudio(elem);
                 break;
+            case 'video': // Agrega el caso de video
+                el = this.createVideo(elem);
+                break;
             default:
                 throw new Error(`Unsupported element type: ${elem.tag}`);
         }
@@ -70,7 +73,16 @@ export class HtmlElementsFactory {
 
         return audio;
     }
+    static createVideo({ id, attributes = {} }) {
+        const video = document.createElement('video');
+        video.setAttribute('id', id);
 
+        for (const [key, value] of Object.entries(attributes)) {
+            video.setAttribute(key, value);
+        }
+
+        return video;
+    }
     static appendTo(parentElement, elements) {
         const createdElements = [];
 

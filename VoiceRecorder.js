@@ -36,7 +36,6 @@ export class VoiceRecorder {
     if (this.recorder) {
       this.recorder.start();
       this.hideButton(this.recordBtn);
-      debugger;
       this.showButton(this.stopBtn);   // Muestra el botón de parar
     }
   }
