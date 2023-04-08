@@ -5,5 +5,5 @@ import { SpeechToText } from './SpeechToText.js';
 const textToSpeech = new TextToSpeech();
 const voiceRecorder = new VoiceRecorder();
 const speechToText = new SpeechToText();
-
+const videoRecorder = new VideoRecorder();
 
