@@ -36,7 +36,7 @@ export class VoiceRecorder {
     if (this.recorder) {
       this.recorder.start();
       this.hideButton(this.recordBtn);
-      this.showButton(this.stopBtn);   // Muestra el botón de parar
+      this.showButton(this.stopBtn);  
     }
   }
 
@@ -44,13 +44,12 @@ export class VoiceRecorder {
     if (this.recorder) {
       this.recorder.stop();
       this.chunks = [];
-      this.hideButton(this.stopBtn);   // Oculta el botón de parar
-      this.showButton(this.recordBtn); // Muestra el botón de grabar
+      this.hideButton(this.stopBtn); 
+      this.showButton(this.recordBtn);
     }
   }
 
   initializeRecorder() {
-    // Inicializa el módulo VoiceRecorder
     this.chunks = [];
     this.recorder = null;
     this.audioCtx = new AudioContext();
@@ -86,6 +85,7 @@ export class VoiceRecorder {
 
   playRecording() {
     const audioElement = document.querySelector('audio');
+    audioElement.volume = 0.2; 
     audioElement.play();
   }
 }

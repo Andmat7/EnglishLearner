@@ -6,8 +6,6 @@ export class TextToSpeech {
     this.initializeSpeechSynthesis();
   }
 
-
-
   createHtmlElements(ttsElement) {
     const select = { tag: 'select', id: 'voice-select', label: 'Select an English voice:', onChange: this.setVoice.bind(this) };
     const input = { tag: 'input', type: 'text', id: 'input-text', label: 'Enter text to synthesize:' };
@@ -22,7 +20,7 @@ export class TextToSpeech {
   initializeSpeechSynthesis() {
     if ('speechSynthesis' in window) {
       this.utterance = new SpeechSynthesisUtterance();
-      window.speechSynthesis.onvoiceschanged = this.loadVoices.bind(this);
+      window.speechSynthesis.addEventListener('voiceschanged', this.loadVoices.bind(this));
     } else {
       console.error('La API de síntesis de voz no está disponible en este navegador.');
     }
@@ -30,7 +28,6 @@ export class TextToSpeech {
 
   loadVoices() {
     const voices = window.speechSynthesis.getVoices();
-
     const enVoices = voices
       .filter(voice => voice.lang.startsWith('en-'));
 
@@ -43,18 +40,18 @@ export class TextToSpeech {
 
     const defaultEnVoice = enVoices[0];
     this.utterance.voice = defaultEnVoice;
-    document.getElementById('voice-select').value = defaultEnVoice.name;
+    this.voiceSelect.value = defaultEnVoice.name;
   }
 
   setVoice() {
-    const selectedVoiceName = document.getElementById('voice-select').value;
+    const selectedVoiceName = this.voiceSelect.value;
     const voices = window.speechSynthesis.getVoices();
     const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
     this.utterance.voice = selectedVoice;
   }
 
   speak() {
-    const inputTextValue = document.getElementById('input-text').value;
+    const inputTextValue =this.inputText.value;
     this.utterance.text = inputTextValue;
     window.speechSynthesis.speak(this.utterance);
   }

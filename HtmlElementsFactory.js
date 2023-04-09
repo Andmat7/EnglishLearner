@@ -38,7 +38,7 @@ export class HtmlElementsFactory {
 
         textareaLabel.appendChild(textarea);
 
-        return textareaLabel;
+        return textarea;
     }
     static createSelect({ id, label, onChange }) {
         const select = document.createElement('select');
@@ -66,7 +66,7 @@ export class HtmlElementsFactory {
 
         inputLabel.appendChild(input);
 
-        return inputLabel;
+        return input;
     }
 
     static createButton({ id, label, onClick }) {
