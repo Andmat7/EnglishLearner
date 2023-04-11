@@ -26,7 +26,7 @@ export class VideoRecorder {
     enableVideo() {
         if (this.isVideoSupported()) {
             const videoStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-            videoStreamPromise.then(this.handleAudioVideoStream)
+            videoStreamPromise.then(this.handleVideoStream)
                 .catch(error => {
                     console.error('No se pudo acceder a la cámara y/o micrófono.', error);
                 });
@@ -41,7 +41,7 @@ export class VideoRecorder {
         }
         return isVideoSupported;
     }
-    handleAudioVideoStream(stream) {
+    handleVideoStream(stream) {
         this.startStreaming(stream);
         this.enableRecorder(stream);
     }

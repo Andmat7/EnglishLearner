@@ -3,11 +3,13 @@ import { HtmlElementsFactory } from './HtmlElementsFactory.js';
 
 export class VoiceRecorder {
   constructor() {
-    this.createButtons();
+    this.createHtmlElements();
+    this.chunks = [];
+    this.recorder = null;
     this.initializeRecorder();
   }
-  
-  createButtons() {
+
+  createHtmlElements() {
     // Crea los botones
     const recordBtn = { tag: 'button', label: 'Record', onClick: this.startRecording.bind(this) };
     const stopBtn = { tag: 'button', label: 'Stop', onClick: this.stopRecording.bind(this), style: 'display: none;' };
@@ -15,15 +17,30 @@ export class VoiceRecorder {
 
     // Agrega los botones a la página web   
     const voiceRecorder = document.querySelector('voice-recorder');
-    const createdElements = HtmlElementsFactory.appendTo(voiceRecorder, [recordBtn, stopBtn,  audio]);
+    const createdElements = HtmlElementsFactory.appendTo(voiceRecorder, [recordBtn, stopBtn, audio]);
 
     // Asignar los elementos creados a las propiedades correspondientes
     this.recordBtn = createdElements[0];
     this.stopBtn = createdElements[1];
     this.audio = createdElements[2];
-}
+  }
+  initializeRecorder() {
+    
+    this.source = null;
 
-  // Agrega estos dos métodos
+    if (this.isAudioSupported()) {
+      const audioStreamPromise = navigator.mediaDevices.getUserMedia({ audio: true });
+      audioStreamPromise.then(stream => {
+        this.audioCtx = new AudioContext();
+        this.source = this.audioCtx.createMediaStreamSource(stream);
+        this.enableRecorder(stream);
+
+      }).catch(error => {
+        console.error('No se pudo acceder al micrófono.', error);
+      });
+    }
+  }
+
   showButton(button) {
     button.style.display = 'inline-block';
   }
@@ -36,7 +53,7 @@ export class VoiceRecorder {
     if (this.recorder) {
       this.recorder.start();
       this.hideButton(this.recordBtn);
-      this.showButton(this.stopBtn);  
+      this.showButton(this.stopBtn);
     }
   }
 
@@ -44,39 +61,29 @@ export class VoiceRecorder {
     if (this.recorder) {
       this.recorder.stop();
       this.chunks = [];
-      this.hideButton(this.stopBtn); 
+      this.hideButton(this.stopBtn);
       this.showButton(this.recordBtn);
     }
   }
 
-  initializeRecorder() {
-    this.chunks = [];
-    this.recorder = null;
-    this.audioCtx = new AudioContext();
-    this.source = null;
-
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-        this.source = this.audioCtx.createMediaStreamSource(stream);
-        this.recorder = new MediaRecorder(stream);
-
-        this.recorder.addEventListener('dataavailable', event => {
-          this.chunks.push(event.data);
-        });
-
-        this.recorder.addEventListener('stop', () => {
-          this.handleRecordingStop();
-        });
-
-      }).catch(error => {
-        console.error('No se pudo acceder al micrófono.', error);
-      });
-    } else {
+  isAudioSupported() {
+    const isAudioSupported = navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+    if (!isAudioSupported) {
       console.error('La API de getUserMedia no está disponible en este navegador.');
     }
+    return isAudioSupported;
   }
 
-  handleRecordingStop() {
+  enableRecorder(stream) {
+    this.recorder = new MediaRecorder(stream);
+    this.recorder.addEventListener('dataavailable', event => {
+      this.chunks.push(event.data);
+    });
+    this.recorder.addEventListener('stop', this.onRecordingStop);
+    this.showButton(this.recordBtn);
+  }
+
+  onRecordingStop() {
     const audioData = new Blob(this.chunks, { type: 'audio/wav' });
     const audioUrl = URL.createObjectURL(audioData);
     const audioElement = document.querySelector('audio');
@@ -85,7 +92,7 @@ export class VoiceRecorder {
   }
 
   playRecording() {
-    this.audio.volume = 0.5; 
+    this.audio.volume = 0.5;
     this.audio.play();
   }
 }
