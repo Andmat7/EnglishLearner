@@ -48,10 +48,9 @@ export class HtmlElementsFactory {
         selectLabel.textContent = label;
         selectLabel.setAttribute('for', id);
 
-        selectLabel.addEventListener('change', onChange);
+        select.addEventListener('change', onChange);
 
         selectLabel.appendChild(select);
-
         return select;
     }
 
