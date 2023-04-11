@@ -2,38 +2,35 @@ import { HtmlElementsFactory } from './HtmlElementsFactory.js';
 
 export class SpeechToText {
   constructor() {
-    this.init();
-  }
-
-  init() {
     this.createHtmlElements();
     this.initializeSpeechRecognition();
   }
 
-  createHtmlElements() {
-    const elements = [
-      {
-        tag: 'select',
-        id: 'lang-select',
-        label: 'Selecciona un idioma:',
-        onChange: this.setLanguage.bind(this),
-      },
-      {
-        tag: 'textarea',
-        id: 'output-text',
-        label: 'Texto transcrito:',
-      },
-      {
-        tag: 'button',
-        id: 'start-stop-btn',
-        label: 'Iniciar',
-        onClick: this.toggleRecognition.bind(this),
-      },
-    ];
-
-    const stt = document.querySelector('speech-to-text');
-    HtmlElementsFactory.appendTo(stt, elements);
+  createHtmlElements(stt) {
+    const select = {
+      tag: 'select',
+      id: 'lang-select',
+      label: 'Selecciona un idioma:',
+      onChange: this.setLanguage.bind(this),
+    };
+    const output = {
+      tag: 'textarea',
+      id: 'output-text',
+      label: 'Texto transcrito:',
+    };
+    const startStopBtn = {
+      tag: 'button',
+      id: 'start-stop-btn',
+      label: 'Iniciar',
+      onClick: this.toggleRecognition.bind(this),
+    };
+    const createdElements = HtmlElementsFactory.appendTo(document.querySelector('speech-to-text'), [select, output, startStopBtn]);
+  
+    this.langSelect = createdElements[0];
+    this.outputText = createdElements[1];
+    this.startStopBtn = createdElements[2];
   }
+  
 
   initializeSpeechRecognition() {
     if ('webkitSpeechRecognition' in window) {
@@ -57,7 +54,7 @@ export class SpeechToText {
       // Agrega más idiomas aquí
     ];
 
-    const langSelect = document.getElementById('lang-select');
+    const langSelect = this.langSelect;
     languages.forEach(lang => {
       const option = document.createElement('option');
       option.textContent = lang.name;
@@ -69,12 +66,12 @@ export class SpeechToText {
   }
 
   setLanguage() {
-    const selectedLanguage = document.getElementById('lang-select').value;
+    const selectedLanguage = this.langSelect.value;
     this.recognition.lang = selectedLanguage;
   }
 
   handleRecognitionResult(event) {
-    const outputText = document.getElementById('output-text');
+    const outputText = this.outputText;
     let finalTranscript = '';
 
     for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -89,7 +86,7 @@ export class SpeechToText {
   }
 
   toggleRecognition() {
-    const startStopBtn = document.getElementById('start-stop-btn');
+    const startStopBtn = this.startStopBtn;
     if (this.recognition && this.recognition.recognizing) {
       this.recognition.stop();
       this.recognition.recognizing = false;
