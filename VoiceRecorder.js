@@ -11,16 +11,16 @@ export class VoiceRecorder {
     // Crea los botones
     const recordBtn = { tag: 'button', label: 'Record', onClick: this.startRecording.bind(this) };
     const stopBtn = { tag: 'button', label: 'Stop', onClick: this.stopRecording.bind(this), style: 'display: none;' };
-    const playBtn = { tag: 'button', label: 'Play', onClick: this.playRecording.bind(this) };
     const audio = { tag: 'audio', attributes: { controls: true } };
 
     // Agrega los botones a la página web   
     const voiceRecorder = document.querySelector('voice-recorder');
-    const createdElements = HtmlElementsFactory.appendTo(voiceRecorder, [recordBtn, stopBtn, playBtn, audio]);
+    const createdElements = HtmlElementsFactory.appendTo(voiceRecorder, [recordBtn, stopBtn,  audio]);
 
     // Asignar los elementos creados a las propiedades correspondientes
     this.recordBtn = createdElements[0];
     this.stopBtn = createdElements[1];
+    this.audio = createdElements[2];
 }
 
   // Agrega estos dos métodos
@@ -81,11 +81,11 @@ export class VoiceRecorder {
     const audioUrl = URL.createObjectURL(audioData);
     const audioElement = document.querySelector('audio');
     audioElement.src = audioUrl;
+    this.playRecording()
   }
 
   playRecording() {
-    const audioElement = document.querySelector('audio');
-    audioElement.volume = 0.2; 
-    audioElement.play();
+    this.audio.volume = 0.5; 
+    this.audio.play();
   }
 }
