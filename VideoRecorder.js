@@ -12,6 +12,7 @@ export class VideoRecorder {
         const video = { tag: 'video', attributes: { controls: true, muted: '' }, id: 'myVideo' };
         const enableVideoBtn = { tag: 'button', label: 'Enable video', onClick: this.enableVideo.bind(this) };
         const disableVideoBtn = { tag: 'button', label: 'Disable video', onClick: this.disableVideo.bind(this), style: 'display: none;'  };
+
         const videoRecorder = document.querySelector('video-recorder');
         const createdElements = HtmlElementsFactory.appendTo(videoRecorder, [recordBtn, stopBtn, enableVideoBtn,disableVideoBtn, video]);
 
@@ -25,32 +26,51 @@ export class VideoRecorder {
     enableVideo() {
         const isVideoSupported = navigator.mediaDevices && navigator.mediaDevices.getUserMedia
         if (isVideoSupported) {
-            navigator.mediaDevices.getUserMedia({ audio: true, video: true }).then(stream => {
+            const getAudioandVideoStream = navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+            getAudioandVideoStream.then(stream => {
                 this.startStreaming(stream);
-                this.showButton(this.recordBtn);
-                this.hideButton(this.enableVideoBtn);
-                this.showButton(this.disableVideoBtn);
-                this.isStreaming = false;
+                this.enableRecorder(stream);
             }).catch(error => {
                 console.error('No se pudo acceder a la cámara y/o micrófono.', error);
             });
+            
         } else {
             console.error('La API de getUserMedia no está disponible en este navegador.');
         }
     }
+
     disableVideo() {
         if (this.recorder) {
             this.stopStreaming();
-            this.recorder = null;
             this.hideButton(this.recordBtn);
         }
         this.hideButton(this.stopBtn);
         this.hideButton(this.disableVideoBtn);
         this.showButton(this.enableVideoBtn);
     }
+
+    startStreaming(stream) {
+        this.videoElement.srcObject = stream;
+        this.videoElement.play();
+        this.videoElement.muted = true;
+        this.hideButton(this.enableVideoBtn);
+        this.showButton(this.disableVideoBtn);
+    }
+
     stopStreaming() {
         this.recorder.stream.getTracks().forEach(track => track.stop());
+        this.recorder = null;
+    }
 
+    enableRecorder(stream) {
+        this.recorder = new MediaRecorder(stream);
+        this.recorder.addEventListener('dataavailable', event => {
+            this.chunks.push(event.data);
+        });
+        this.recorder.addEventListener('stop', () => {
+            this.handleRecordingStop();
+        });
+        this.showButton(this.recordBtn);
     }
 
     handleRecordingStop() {
@@ -69,19 +89,6 @@ export class VideoRecorder {
             this.hideButton(this.recordBtn);
             this.showButton(this.stopBtn);
         }
-    }
-
-    startStreaming(stream) {
-        this.videoElement.srcObject = stream;
-        this.videoElement.play();
-        this.videoElement.muted = true;
-        this.recorder = new MediaRecorder(stream);
-        this.recorder.addEventListener('dataavailable', event => {
-            this.chunks.push(event.data);
-        });
-        this.recorder.addEventListener('stop', () => {
-            this.handleRecordingStop();
-        });
     }
 
     stopRecording() {
