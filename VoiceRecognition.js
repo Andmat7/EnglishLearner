@@ -15,17 +15,17 @@ export class VoiceRecognition {
     this.configChart();
   }
   
-    createHtmlElements() {
-      // Crea los botones y el canvas
-      const recordBtn = { tag: 'button', label: 'Iniciar reconocimiento de voz', onClick: null };
-      const canvas = { tag: 'canvas', attributes: { id: 'radarChart' } };
+  createHtmlElements() {
+    const recordBtn = { tag: 'button', label: 'Iniciar reconocimiento de voz', onClick: null };
+    const canvas = { tag: 'canvas', attributes: { id: 'radarChart' } };
+    const recordingDiv = { tag: 'div', label: 'Grabando...', style: { display: 'none' } };
   
-      // Agrega los botones y el canvas a la página web   
-      const voiceRecognition = document.querySelector('voice-recognition');
-      const createdElements = HtmlElementsFactory.appendTo(voiceRecognition, [recordBtn, canvas]);
-        this.recordBtn = createdElements[0];
-      this.canvas = createdElements[1];
-    }
+    const voiceRecognition = document.querySelector('voice-recognition');
+    const createdElements = HtmlElementsFactory.appendTo(voiceRecognition, [recordBtn, canvas, recordingDiv]);
+    this.recordBtn = createdElements[0];
+    this.canvas = createdElements[1];
+    this.recordingDiv = createdElements[2];
+  }  
     createChartScript() {
       return new Promise((resolve) => {
           const script = HtmlElementsFactory.createElement({
@@ -71,24 +71,35 @@ export class VoiceRecognition {
     startRecognition() {
       if ('webkitSpeechRecognition' in window) {
         const recognition = new webkitSpeechRecognition();
-  
+        const recordingDiv = this.recordingDiv; // Referencia a la etiqueta HTML "div"
+    
         recognition.continuous = true;
-  
         recognition.interimResults = false;
         recognition.lang = 'en-US';
         recognition.maxAlternatives = 5;
-  
+    
+        recognition.onstart = function() {
+          console.log('Micrófono activado. Comenzando a grabar.');
+          recordingDiv.style.display = 'block'; // Muestra la etiqueta HTML "div"
+        }
+    
         recognition.onresult = this.onRecognitionResult.bind(this);
-  
         recognition.onerror = function (event) {
           console.error('Error en el reconocimiento de voz: ' + event.error);
         };
-  
+    
+        recognition.onend = function() {
+          console.log('Micrófono desactivado. Deteniendo grabación.');
+          recordingDiv.style.display = 'none'; // Oculta la etiqueta HTML "div"
+        }
+    
         recognition.start();
       } else {
         alert('Lo siento, tu navegador no es compatible con el reconocimiento de voz webkitSpeechRecognition.');
       }
     }
+    
+    
   
     onRecognitionResult(event) {
       const results = event.results[0];
@@ -107,5 +118,3 @@ export class VoiceRecognition {
       this.radarChart.update();
     }
   }
-
-  

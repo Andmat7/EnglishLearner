@@ -25,6 +25,9 @@ export class HtmlElementsFactory {
                 break;
             case 'script':
                 el = this.createScript(elem);
+                break;  
+            case 'div': // Agrega el caso de div
+                el = this.createDiv(elem);
                 break;
             default:
                 throw new Error(`Unsupported element type: ${elem.tag}`);
@@ -40,7 +43,7 @@ export class HtmlElementsFactory {
         script.setAttribute('src', attributes.src);
         return script;
     }
-    
+
     static createCanvas({ id, width, height }) {
         const canvas = document.createElement('canvas');
         canvas.setAttribute('id', id);
@@ -100,6 +103,14 @@ export class HtmlElementsFactory {
         return button;
     }
 
+    static createDiv({ label, style }) {
+        const div = document.createElement('div');
+        div.textContent = label;
+        if (style) {
+            div.setAttribute('style', style);
+        }
+        return div;
+    }
     static createAudio({ id }) {
         const audio = document.createElement('audio');
         audio.setAttribute('id', id);
