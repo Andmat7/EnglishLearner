@@ -79,7 +79,7 @@ export class VoiceRecorder {
     this.recorder.addEventListener('dataavailable', event => {
       this.chunks.push(event.data);
     });
-    this.recorder.addEventListener('stop', this.onRecordingStop);
+    this.recorder.addEventListener('stop', this.onRecordingStop.bind(this));
     this.showButton(this.recordBtn);
   }
 

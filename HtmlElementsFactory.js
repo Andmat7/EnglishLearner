@@ -20,6 +20,12 @@ export class HtmlElementsFactory {
             case 'textarea': // Agrega el caso de textarea
                 el = this.createTextarea(elem);
                 break;
+            case 'canvas':
+                el = this.createCanvas(elem);
+                break;
+            case 'script':
+                el = this.createScript(elem);
+                break;
             default:
                 throw new Error(`Unsupported element type: ${elem.tag}`);
         }
@@ -28,6 +34,21 @@ export class HtmlElementsFactory {
         }
         return el;
     }
+
+    static createScript({ attributes = {} }) {
+        const script = document.createElement('script');
+        script.setAttribute('src', attributes.src);
+        return script;
+    }
+    
+    static createCanvas({ id, width, height }) {
+        const canvas = document.createElement('canvas');
+        canvas.setAttribute('id', id);
+        canvas.setAttribute('width', width);
+        canvas.setAttribute('height', height);
+        return canvas;
+    }
+
     static createTextarea({ id, label }) {
         const textarea = document.createElement('textarea');
         textarea.setAttribute('id', id);
