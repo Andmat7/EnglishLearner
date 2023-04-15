@@ -25,9 +25,12 @@ export class HtmlElementsFactory {
                 break;
             case 'script':
                 el = this.createScript(elem);
-                break;  
+                break;
             case 'div': // Agrega el caso de div
                 el = this.createDiv(elem);
+                break;
+            case 'progress':
+                el = this.createProgress(elem);
                 break;
             default:
                 throw new Error(`Unsupported element type: ${elem.tag}`);
@@ -91,6 +94,15 @@ export class HtmlElementsFactory {
 
         return input;
     }
+    static createProgress({ id, value = 0, max = 100 }) {
+        const progress = document.createElement('progress');
+        progress.setAttribute('id', id);
+        progress.setAttribute('value', value);
+        progress.setAttribute('max', max);
+
+        return progress;
+    }
+
 
     static createButton({ id, label, onClick }) {
         const button = document.createElement('button');
