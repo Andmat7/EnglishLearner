@@ -3,12 +3,9 @@ import { HtmlElementsFactory } from './HtmlElementsFactory.js';
 export class VoiceRecognition {
   constructor() {
     this.createHtmlElements();
-    this.initChart();  }
-
-  async initChart() {
-    await this.createChartScript();
-    this.configChart();
   }
+
+
   async setupAudioContext() {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     this.analyser = this.audioContext.createAnalyser();
@@ -32,15 +29,117 @@ export class VoiceRecognition {
 
   createHtmlElements() {
     const recordBtn = { tag: 'button', label: 'Iniciar reconocimiento de voz', onClick: this.startRecognition.bind(this) };
-    const canvas = { tag: 'canvas', attributes: { id: 'radarChart' } };
     const recordingDiv = { tag: 'div', label: 'Grabando...', style: { display: 'none' } };
     const progress = { tag: 'progress', attributes: { max: 100, value: 0 } };
     const voiceRecognition = document.querySelector('voice-recognition');
-    const createdElements = HtmlElementsFactory.appendTo(voiceRecognition, [recordBtn, canvas, recordingDiv, progress]);
+    const createdElements = HtmlElementsFactory.appendTo(voiceRecognition, [recordBtn, recordingDiv, progress]);
     this.recordBtn = createdElements[0];
-    this.canvas = createdElements[1];
-    this.recordingDiv = createdElements[2];
-    this.progress = createdElements[3];
+    this.recordingDiv = createdElements[1];
+    this.progress = createdElements[2];
+    this.chartVoiceRecognition = new ChartVoiceRecognition(voiceRecognition);
+    this.canvas = this.chartVoiceRecognition.canvas;
+  }
+  setupRecognition(recognition) {
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    recognition.maxAlternatives = 5;
+
+    recognition.onstart = () => this.onRecognitionStart();
+    recognition.onresult = (event) => this.onRecognitionResult(event);
+    recognition.onerror = (event) => this.onRecognitionError(event);
+    recognition.onend = () => this.onRecognitionEnd();
+
+    recognition.onaudiostart = () => this.onAudioStart();
+    recognition.onaudioend = () => this.onAudioEnd();
+    recognition.onsoundstart = () => this.onSoundStart();
+    recognition.onsoundend = () => this.onSoundEnd();
+    recognition.onspeechstart = () => this.onSpeechStart();
+    recognition.onspeechend = () => this.onSpeechEnd();
+    recognition.onnomatch = (event) => this.onNoMatch(event);
+  }
+  startRecognition() {
+    if ('webkitSpeechRecognition' in window) {
+      this.setupAudioContext();
+      const recognition = new webkitSpeechRecognition();
+      this.setupRecognition(recognition);
+      recognition.start();
+    } else {
+      alert('Lo siento, tu navegador no es compatible con el reconocimiento de voz webkitSpeechRecognition.');
+    }
+  }
+
+
+
+  onRecognitionStart() {
+    console.log('Micrófono activado. Comenzando a grabar.');
+  }
+
+  showVolume() {
+    this.recordingDiv.style.display = 'block';
+    this.volumeInterval = setInterval(() => {
+      const volume = this.getVolume();
+      this.progress.value = volume;
+    }, 100);
+  }
+
+  onRecognitionError(event) {
+    console.error('Error en el reconocimiento de voz: ' + event.error);
+  }
+
+  onRecognitionEnd() {
+    console.log('Micrófono desactivado. Deteniendo grabación.');
+    this.recordingDiv.style.display = 'none'; // Oculta la etiqueta HTML "div"
+  }
+
+  onRecognitionResult(event) {
+    const results = event.results[0];
+    this.chartVoiceRecognition.onRecognitionResult(event)
+  }
+
+  onAudioStart() {
+    console.log('El evento audiostart ha sido activado.');
+    this.showVolume();
+  }
+
+  onAudioEnd() {
+    console.log('El evento audioend ha sido activado.');
+  }
+
+  onSoundStart() {
+    console.log('El evento soundstart ha sido activado.');
+  }
+
+  onSoundEnd() {
+    console.log('El evento soundend ha sido activado.');
+  }
+
+  onSpeechStart() {
+    console.log('El evento speechstart ha sido activado.');
+  }
+
+  onSpeechEnd() {
+    console.log('El evento speechend ha sido activado.');
+  }
+
+  onNoMatch(event) {
+    console.log('No se encontró una coincidencia: ', event);
+  }
+
+}
+
+
+class ChartVoiceRecognition {
+
+  constructor(voiceRecognition) {
+    this.createHtmlElements(voiceRecognition);
+    this.initChart();
+  }
+
+  createHtmlElements(voiceRecognition) {
+    const canvas = { tag: 'canvas', attributes: { id: 'radarChart' } };
+    const createdElements = HtmlElementsFactory.appendTo(voiceRecognition, [canvas]);
+    this.canvas = createdElements[0];
   }
 
   createChartScript() {
@@ -54,6 +153,11 @@ export class VoiceRecognition {
       script.addEventListener('load', resolve);
       document.head.appendChild(script);
     });
+  }
+
+  async initChart() {
+    await this.createChartScript();
+    this.configChart();
   }
 
   configChart() {
@@ -84,61 +188,18 @@ export class VoiceRecognition {
     this.radarChart = new Chart(this.ctx, this.config);
   }
 
-  startRecognition() {
-    if ('webkitSpeechRecognition' in window) {
-      this.setupAudioContext();
-      const recognition = new webkitSpeechRecognition();
-      this.setupRecognition(recognition);
-      recognition.start();
-    } else {
-      alert('Lo siento, tu navegador no es compatible con el reconocimiento de voz webkitSpeechRecognition.');
-    }
-  }
-
-  setupRecognition(recognition) {
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-    recognition.maxAlternatives = 5;
-
-    recognition.onstart = () => this.onRecognitionStart();
-    recognition.onresult = (event) => this.onRecognitionResult(event);
-    recognition.onerror = (event) => this.onRecognitionError(event);
-    recognition.onend = () => this.onRecognitionEnd();
-  }
-
-  onRecognitionStart() {
-    console.log('Micrófono activado. Comenzando a grabar.');
-    this.recordingDiv.style.display = 'block';
-    this.volumeInterval = setInterval(() => {
-      const volume = this.getVolume();
-      this.progress.value = volume;
-    }, 100);
-  }
-
-
-  onRecognitionError(event) {
-    console.error('Error en el reconocimiento de voz: ' + event.error);
-  }
-
-  onRecognitionEnd() {
-    console.log('Micrófono desactivado. Deteniendo grabación.');
-    this.recordingDiv.style.display = 'none'; // Oculta la etiqueta HTML "div"
-  }
-
-  onRecognitionResult(event) {
-    const results = event.results[0];
-    console.log(event.results)
-    this.clearLabelsAndData();
-    this.addResultsToChart(results);
-    this.updateChart();
-  }
-
   clearLabelsAndData() {
     this.config.data.labels = [];
     this.config.data.datasets[0].data = [];
   }
 
+  onRecognitionResult(event) {
+    const results = event.results[0];
+    this.clearLabelsAndData();
+    this.addResultsToChart(results);
+    this.updateChart();
+  }
+  
   addResultsToChart(results) {
     for (let i = 0; i < results.length; i++) {
       const alternative = results[i];
@@ -149,12 +210,10 @@ export class VoiceRecognition {
 
   addLabel(label) {
     this.config.data.labels.push(label);
-    console.log(label);
   }
 
   addData(data) {
     this.config.data.datasets[0].data.push(data);
-    console.log(data);
   }
 
   updateChart() {
