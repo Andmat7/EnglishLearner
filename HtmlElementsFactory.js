@@ -14,10 +14,10 @@ export class HtmlElementsFactory {
             case 'audio':
                 el = this.createAudio(elem);
                 break;
-            case 'video': // Agrega el caso de video
+            case 'video': 
                 el = this.createVideo(elem);
                 break;
-            case 'textarea': // Agrega el caso de textarea
+            case 'textarea': 
                 el = this.createTextarea(elem);
                 break;
             case 'canvas':
@@ -26,7 +26,7 @@ export class HtmlElementsFactory {
             case 'script':
                 el = this.createScript(elem);
                 break;
-            case 'div': // Agrega el caso de div
+            case 'div':
                 el = this.createDiv(elem);
                 break;
             case 'progress':
@@ -94,12 +94,15 @@ export class HtmlElementsFactory {
 
         return input;
     }
-    static createProgress({ id, value = 0, max = 100 }) {
+    static createProgress({ id, value = 0, max = 100, style  }) {
         const progress = document.createElement('progress');
         progress.setAttribute('id', id);
         progress.setAttribute('value', value);
         progress.setAttribute('max', max);
 
+        if (style) {
+            progress.setAttribute('style', style);
+        }
         return progress;
     }
 

@@ -1,10 +1,10 @@
 import { HtmlElementsFactory } from './HtmlElementsFactory.js';
 
 export class VoiceRecognition {
+
   constructor() {
     this.createHtmlElements();
   }
-
 
   async setupAudioContext() {
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -19,6 +19,7 @@ export class VoiceRecognition {
       console.error('Error al configurar el AudioContext:', err);
     }
   }
+
   getVolume() {
     const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
     this.analyser.getByteFrequencyData(dataArray);
@@ -29,16 +30,16 @@ export class VoiceRecognition {
 
   createHtmlElements() {
     const recordBtn = { tag: 'button', label: 'Iniciar reconocimiento de voz', onClick: this.startRecognition.bind(this) };
-    const recordingDiv = { tag: 'div', label: 'Grabando...', style: { display: 'none' } };
-    const progress = { tag: 'progress', attributes: { max: 100, value: 0 } };
+    const recordingDiv = { tag: 'div', label: '', style: { display: 'none' } };
+    const progress = { tag: 'progress', attributes: { max: 100, value: 0 }, style: { display: 'none' }  };
     const voiceRecognition = document.querySelector('voice-recognition');
     const createdElements = HtmlElementsFactory.appendTo(voiceRecognition, [recordBtn, recordingDiv, progress]);
     this.recordBtn = createdElements[0];
     this.recordingDiv = createdElements[1];
     this.progress = createdElements[2];
     this.chartVoiceRecognition = new ChartVoiceRecognition(voiceRecognition);
-    this.canvas = this.chartVoiceRecognition.canvas;
   }
+
   setupRecognition(recognition) {
     recognition.continuous = true;
     recognition.interimResults = false;
@@ -58,6 +59,7 @@ export class VoiceRecognition {
     recognition.onspeechend = () => this.onSpeechEnd();
     recognition.onnomatch = (event) => this.onNoMatch(event);
   }
+
   startRecognition() {
     if ('webkitSpeechRecognition' in window) {
       this.setupAudioContext();
@@ -69,14 +71,12 @@ export class VoiceRecognition {
     }
   }
 
-
-
   onRecognitionStart() {
     console.log('Micrófono activado. Comenzando a grabar.');
   }
 
   showVolume() {
-    this.recordingDiv.style.display = 'block';
+    this.progress.style.display = 'block';
     this.volumeInterval = setInterval(() => {
       const volume = this.getVolume();
       this.progress.value = volume;
@@ -93,17 +93,24 @@ export class VoiceRecognition {
   }
 
   onRecognitionResult(event) {
-    const results = event.results[0];
     this.chartVoiceRecognition.onRecognitionResult(event)
   }
 
   onAudioStart() {
     console.log('El evento audiostart ha sido activado.');
+    this.recordingDiv.textContent = 'Grabando...';
+    this.recordingDiv.style.display = 'block';
     this.showVolume();
   }
 
   onAudioEnd() {
     console.log('El evento audioend ha sido activado.');
+    this.hideVolume(); 
+  }
+
+  hideVolume() {
+    clearInterval(this.volumeInterval);
+    this.progress.style.display = 'none';
   }
 
   onSoundStart() {
@@ -199,7 +206,7 @@ class ChartVoiceRecognition {
     this.addResultsToChart(results);
     this.updateChart();
   }
-  
+
   addResultsToChart(results) {
     for (let i = 0; i < results.length; i++) {
       const alternative = results[i];
