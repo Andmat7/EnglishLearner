@@ -3,13 +3,7 @@ import { HtmlElementsFactory } from './HtmlElementsFactory.js';
 export class VoiceRecognition {
   constructor() {
     this.createHtmlElements();
-
-    const startBtn = this.recordBtn;
-    startBtn.addEventListener("click", this.startRecognition.bind(this));
-
-    this.initChart();
-    this.setupAudioContext();
-  }
+    this.initChart();  }
 
   async initChart() {
     await this.createChartScript();
@@ -37,7 +31,7 @@ export class VoiceRecognition {
   }
 
   createHtmlElements() {
-    const recordBtn = { tag: 'button', label: 'Iniciar reconocimiento de voz', onClick: null };
+    const recordBtn = { tag: 'button', label: 'Iniciar reconocimiento de voz', onClick: this.startRecognition.bind(this) };
     const canvas = { tag: 'canvas', attributes: { id: 'radarChart' } };
     const recordingDiv = { tag: 'div', label: 'Grabando...', style: { display: 'none' } };
     const progress = { tag: 'progress', attributes: { max: 100, value: 0 } };
@@ -48,7 +42,7 @@ export class VoiceRecognition {
     this.recordingDiv = createdElements[2];
     this.progress = createdElements[3];
   }
-  
+
   createChartScript() {
     return new Promise((resolve) => {
       const script = HtmlElementsFactory.createElement({
@@ -92,6 +86,7 @@ export class VoiceRecognition {
 
   startRecognition() {
     if ('webkitSpeechRecognition' in window) {
+      this.setupAudioContext();
       const recognition = new webkitSpeechRecognition();
       this.setupRecognition(recognition);
       recognition.start();
@@ -114,7 +109,7 @@ export class VoiceRecognition {
 
   onRecognitionStart() {
     console.log('Micrófono activado. Comenzando a grabar.');
-    this.recordingDiv.style.display = 'block';  
+    this.recordingDiv.style.display = 'block';
     this.volumeInterval = setInterval(() => {
       const volume = this.getVolume();
       this.progress.value = volume;
